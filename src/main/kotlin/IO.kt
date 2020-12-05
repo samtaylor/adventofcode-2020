@@ -4,12 +4,12 @@ import java.lang.Exception
 
 object IO {
 
-    fun readFile(filename: String): List<String> =
+    fun String.readFile(): List<String> =
         try {
 
             mutableListOf<String>().apply {
 
-                val inputStream = javaClass.getResourceAsStream(filename)
+                val inputStream = javaClass.getResourceAsStream(this@readFile)
                 with(BufferedReader(InputStreamReader(inputStream))) {
 
                     var line = readLine()

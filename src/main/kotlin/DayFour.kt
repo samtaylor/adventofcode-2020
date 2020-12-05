@@ -1,27 +1,32 @@
-data class Passport(
-    val birthYear: String? = null,
-    val issueYear: String? = null,
-    val expirationYear: String? = null,
-    val height: String? = null,
-    val hairColour: String? = null,
-    val eyeColour: String? = null,
-    val passportId: String? = null,
-    val countryId: String? = null)
+import IO.readFile
 
-fun Passport.isValid(): Boolean =
-    birthYear != null && issueYear != null && expirationYear != null && height != null &&
-            hairColour != null && eyeColour != null && passportId != null
+class Passport(
+    private val birthYear: String? = null,
+    private val issueYear: String? = null,
+    private val expirationYear: String? = null,
+    private val height: String? = null,
+    private val hairColour: String? = null,
+    private val eyeColour: String? = null,
+    private val passportId: String? = null,
+) {
 
-object DayFour : Day<Int, String> {
+    fun isValid(): Boolean =
+        birthYear != null && issueYear != null && expirationYear != null && height != null &&
+                hairColour != null && eyeColour != null && passportId != null
+}
 
-    private const val BIRTH_YEAR        = "byr"
-    private const val ISSUE_YEAR        = "iyr"
-    private const val EXPIRATION_YEAR   = "eyr"
-    private const val HEIGHT            = "hgt"
-    private const val HAIR_COLOUR       = "hcl"
-    private const val EYE_COLOUR        = "ecl"
-    private const val PASSPORT_ID       = "pid"
-    private const val COUNTRY_ID        = "cid"
+class DayFour(override val filename: String) : Day<Int, String> {
+
+    companion object {
+
+        private const val BIRTH_YEAR = "byr"
+        private const val ISSUE_YEAR = "iyr"
+        private const val EXPIRATION_YEAR = "eyr"
+        private const val HEIGHT = "hgt"
+        private const val HAIR_COLOUR = "hcl"
+        private const val EYE_COLOUR = "ecl"
+        private const val PASSPORT_ID = "pid"
+    }
 
     private val List<Pair<String, String>>.birthYear
         get() = firstOrNull { it.first == BIRTH_YEAR }?.second
@@ -44,11 +49,9 @@ object DayFour : Day<Int, String> {
     private val List<Pair<String, String>>.passportId
         get() = firstOrNull { it.first == PASSPORT_ID }?.second
 
-    private val List<Pair<String, String>>.countryId
-        get() = firstOrNull { it.first == COUNTRY_ID }?.second
+    override fun runPartOne(): Int {
 
-    override fun runPartOne(input: List<String>): Int {
-
+        val input = filename.readFile()
         return mutableListOf<Passport>().apply {
 
             val tokens = mutableListOf<Pair<String, String>>()
@@ -72,7 +75,7 @@ object DayFour : Day<Int, String> {
         }.filter { it.isValid() }.size
     }
 
-    override fun runPartTwo(input: List<String>): String {
+    override fun runPartTwo(): String {
         TODO("Not yet implemented")
     }
 
@@ -85,6 +88,5 @@ object DayFour : Day<Int, String> {
             tokens.hairColour,
             tokens.eyeColour,
             tokens.passportId,
-            tokens.countryId
         )
 }

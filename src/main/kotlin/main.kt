@@ -1,5 +1,4 @@
-fun main(args: Array<String>) {
+fun main() {
 
-    println(DayFour.runPartOne(IO.readFile("/four-one.txt")))
+    println(DayFour("/day-four.txt").runPartOne())
 }
-

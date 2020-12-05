@@ -1,5 +1,7 @@
 interface Day<T, U> {
 
-    fun runPartOne(input: List<String>): T
-    fun runPartTwo(input: List<String>): U
+    val filename: String
+
+    fun runPartOne(): T
+    fun runPartTwo(): U
 }
