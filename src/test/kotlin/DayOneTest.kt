@@ -8,4 +8,10 @@ internal class DayOneTest {
 
         assertEquals(514579, DayOne.runPartOne())
     }
+
+    @Test
+    fun partTwo() {
+
+        assertEquals(241861950, DayOne.runPartTwo())
+    }
 }
