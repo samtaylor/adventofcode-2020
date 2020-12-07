@@ -50,9 +50,9 @@ object DayFour : Day<Int, Int> {
     private val List<Pair<String, String>>.passportId
         get() = firstOrNull { it.first == PASSPORT_ID }?.second
 
-    override fun runPartOne() = parse().filter { it.isValidForPartOne }.size
+    override val partOneResult = parse().filter { it.isValidForPartOne }.size
 
-    override fun runPartTwo() = parse().filter { it.isValidForPartTwo }.size
+    override val partTwoResult = parse().filter { it.isValidForPartTwo }.size
 
     private fun parse() = mutableListOf<Passport>().apply {
         val tokens = mutableListOf<Pair<String, String>>()

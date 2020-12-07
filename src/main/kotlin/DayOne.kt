@@ -4,7 +4,8 @@ object DayOne : Day<Int, Int> {
 
     override val filename = "/day-one.txt"
 
-    override fun runPartOne(): Int {
+    override val partOneResult: Int
+    get() {
 
         val numbers = filename.readFile().map { it.toInt() }
         numbers.indices.forEach { start ->
@@ -21,7 +22,8 @@ object DayOne : Day<Int, Int> {
         return 0
     }
 
-    override fun runPartTwo(): Int {
+    override val partTwoResult: Int
+    get() {
 
         val numbers = filename.readFile().map { it.toInt() }
         numbers.indices.forEach { start ->

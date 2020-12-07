@@ -16,9 +16,9 @@ object DayTwo : Day<Int, Int> {
 
     override val filename = "/day-two.txt"
 
-    override fun runPartOne() = parse().filter { it.isValidForPartOne }.size
+    override val partOneResult = parse().filter { it.isValidForPartOne }.size
 
-    override fun runPartTwo() = parse().filter { it.isValidForPartTwo }.size
+    override val partTwoResult = parse().filter { it.isValidForPartTwo }.size
 
     private fun parse(): List<Line> = filename.readFile().map { line ->
 

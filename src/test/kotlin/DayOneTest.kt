@@ -4,8 +4,8 @@ import kotlin.test.assertEquals
 internal class DayOneTest {
 
     @Test
-    fun partOne() = assertEquals(514579, DayOne.runPartOne())
+    fun partOne() = assertEquals(514579, DayOne.partOneResult)
 
     @Test
-    fun partTwo() = assertEquals(241861950, DayOne.runPartTwo())
+    fun partTwo() = assertEquals(241861950, DayOne.partTwoResult)
 }
