@@ -10,11 +10,11 @@ class Passport(
     private val passportId: String? = null,
 ) {
 
-    fun isValidForPartOne(): Boolean =
-        birthYear != null && issueYear != null && expirationYear != null && height != null &&
-                hairColour != null && eyeColour != null && passportId != null
+    val isValidForPartOne: Boolean
+    get() = birthYear != null && issueYear != null && expirationYear != null && height != null &&
+            hairColour != null && eyeColour != null && passportId != null
 
-    fun isValidForPartTwo() = false
+    val isValidForPartTwo = false
 }
 
 object DayFour : Day<Int, Int> {
@@ -50,9 +50,9 @@ object DayFour : Day<Int, Int> {
     private val List<Pair<String, String>>.passportId
         get() = firstOrNull { it.first == PASSPORT_ID }?.second
 
-    override fun runPartOne() = parse().filter { it.isValidForPartOne() }.size
+    override fun runPartOne() = parse().filter { it.isValidForPartOne }.size
 
-    override fun runPartTwo() = parse().filter { it.isValidForPartTwo() }.size
+    override fun runPartTwo() = parse().filter { it.isValidForPartTwo }.size
 
     private fun parse() = mutableListOf<Passport>().apply {
         val tokens = mutableListOf<Pair<String, String>>()
