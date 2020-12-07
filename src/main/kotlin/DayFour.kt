@@ -10,23 +10,24 @@ class Passport(
     private val passportId: String? = null,
 ) {
 
-    fun isValid(): Boolean =
+    fun isValidForPartOne(): Boolean =
         birthYear != null && issueYear != null && expirationYear != null && height != null &&
                 hairColour != null && eyeColour != null && passportId != null
+
+    fun isValidForPartTwo() = false
 }
 
-class DayFour(override val filename: String) : Day<Int, String> {
+object DayFour : Day<Int, Int> {
 
-    companion object {
+    override val filename = "/day-four.txt"
 
-        private const val BIRTH_YEAR = "byr"
-        private const val ISSUE_YEAR = "iyr"
-        private const val EXPIRATION_YEAR = "eyr"
-        private const val HEIGHT = "hgt"
-        private const val HAIR_COLOUR = "hcl"
-        private const val EYE_COLOUR = "ecl"
-        private const val PASSPORT_ID = "pid"
-    }
+    private const val BIRTH_YEAR = "byr"
+    private const val ISSUE_YEAR = "iyr"
+    private const val EXPIRATION_YEAR = "eyr"
+    private const val HEIGHT = "hgt"
+    private const val HAIR_COLOUR = "hcl"
+    private const val EYE_COLOUR = "ecl"
+    private const val PASSPORT_ID = "pid"
 
     private val List<Pair<String, String>>.birthYear
         get() = firstOrNull { it.first == BIRTH_YEAR }?.second
@@ -49,34 +50,29 @@ class DayFour(override val filename: String) : Day<Int, String> {
     private val List<Pair<String, String>>.passportId
         get() = firstOrNull { it.first == PASSPORT_ID }?.second
 
-    override fun runPartOne(): Int {
+    override fun runPartOne() = parse().filter { it.isValidForPartOne() }.size
 
-        val input = filename.readFile()
-        return mutableListOf<Passport>().apply {
+    override fun runPartTwo() = parse().filter { it.isValidForPartTwo() }.size
 
-            val tokens = mutableListOf<Pair<String, String>>()
-            input.forEach { line ->
+    private fun parse() = mutableListOf<Passport>().apply {
+        val tokens = mutableListOf<Pair<String, String>>()
+        filename.readFile().forEach { line ->
 
-                if (line.isNotBlank()) {
+            if (line.isNotBlank()) {
 
-                    tokens.addAll(
-                        line
-                            .split(" ")
-                            .map { with(it.split(":")) { Pair(first(), last()) } }
-                    )
-                } else {
+                tokens.addAll(
+                    line
+                        .split(" ")
+                        .map { with(it.split(":")) { Pair(first(), last()) } }
+                )
+            } else {
 
-                    add(passportFromTokens(tokens))
-                    tokens.clear()
-                }
+                add(passportFromTokens(tokens))
+                tokens.clear()
             }
+        }
 
-            add(passportFromTokens(tokens))
-        }.filter { it.isValid() }.size
-    }
-
-    override fun runPartTwo(): String {
-        TODO("Not yet implemented")
+        add(passportFromTokens(tokens))
     }
 
     private fun passportFromTokens(tokens: List<Pair<String, String>>) =
