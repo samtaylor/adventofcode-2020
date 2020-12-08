@@ -116,11 +116,11 @@ object DayFour : Day<Int, Int> {
     private val List<Pair<String, String>>.passportId
         get() = firstOrNull { it.first == PASSPORT_ID }?.second
 
-    override val partOneResult = parse().filter { it.isValidForPartOne }.size
+    override val partOneResult = passports().filter { it.isValidForPartOne }.size
 
-    override val partTwoResult = parse().filter { it.isValidForPartTwo }.size
+    override val partTwoResult = passports().filter { it.isValidForPartTwo }.size
 
-    private fun parse() = mutableListOf<Passport>().apply {
+    private fun passports() = mutableListOf<Passport>().apply {
         val tokens = mutableListOf<Pair<String, String>>()
         filename.readFile().forEach { line ->
 
