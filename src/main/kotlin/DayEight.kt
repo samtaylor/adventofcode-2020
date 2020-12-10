@@ -3,43 +3,145 @@ import IO.readFile
 sealed class Operation
 data class Accumulator(val argument: Int) : Operation()
 data class Jump(val offset: Int) : Operation()
-object NoOperation : Operation()
+data class NoOperation(val offset: Int) : Operation()
+data class Instruction(val index: Int, var operation: Operation, var executionCount: Int = 0)
+data class ProgramState(val accumulatorValue: Int, val instruction: Instruction)
 
-data class Instruction(val operation: Operation, var executionCount: Int = 0)
-class Program(val instructions: List<Instruction>) {
+class Stack<T> {
 
-    fun run(): Int {
+    private var stackIndex = 0
+    private val items = mutableListOf<T>()
 
-        var accumulator = 0
-        var instructionPointer = 0
-        var currentInstruction = instructions[instructionPointer]
+    fun push(item: T) {
+
+        items.add(item)
+        stackIndex ++
+    }
+
+    fun pop(): T {
+
+        stackIndex --
+        val item = items[stackIndex]
+        items.removeAt(stackIndex)
+        return item
+    }
+
+    fun peak(): T = items[stackIndex - 1]
+
+    override fun toString() = StringBuilder().apply {
+        append("Stack:\n")
+        items.forEachIndexed { index, item ->
+
+            append("$index - $item\n")
+        }
+    }.toString()
+}
+
+class Program(private val instructions: List<Instruction>) {
+
+    var accumulator = 0
+
+    private var instructionPointer = 0
+    private var currentInstruction = instructions[instructionPointer]
+    private var firstRun = true
+    private val stack = Stack<ProgramState>()
+
+    fun runUntilLoopOrEnd() = apply {
+
         while (currentInstruction.executionCount == 0) {
 
-            when (val operation = currentInstruction.operation) {
+            runInstruction(
+                instructionPointer,
+                accumulator,
+                currentInstruction,
+                if (firstRun) stack else null
+            ) { newAccumulator, newPointer ->
 
-                is NoOperation -> {
-
-                    println("$instructionPointer - $operation")
-                    instructionPointer ++
-                }
-                is Accumulator -> {
-
-                    println("$instructionPointer - $operation")
-                    accumulator += operation.argument
-                    instructionPointer ++
-                }
-                is Jump -> {
-
-                    println("$instructionPointer - $operation")
-                    instructionPointer += operation.offset
-                }
+                accumulator = newAccumulator
+                instructionPointer = newPointer
             }
 
-            currentInstruction.executionCount ++
-            currentInstruction = instructions[instructionPointer]
+            if (instructionPointer < instructions.size) {
+
+                currentInstruction = instructions[instructionPointer]
+            }
         }
 
-        return accumulator
+        firstRun = false
+    }
+
+    fun runWithCorrection() = apply {
+
+        while (running()) {
+
+            runUntilLoopOrEnd()
+
+            if (running()) {
+
+                popToPreviousNoOpOrJump().apply {
+
+                    resetProgramToState()
+                    flipInstruction()
+                }
+            }
+        }
+    }
+
+    private fun running() = instructionPointer < instructions.size
+
+    private fun popToPreviousNoOpOrJump() = stack.apply {
+
+        while (peak().instruction.operation is Accumulator) {
+
+            pop()
+        }
+    }.pop()
+
+    private fun ProgramState.resetProgramToState() {
+
+        accumulator = accumulatorValue
+        instructionPointer = instruction.index
+        currentInstruction = instructions[instructionPointer]
+        currentInstruction.executionCount = 0
+    }
+
+    private fun ProgramState.flipInstruction() {
+
+        val instruction = instructions.find { it.index == instruction.index }
+        when (val operation = instruction?.operation) {
+
+            is NoOperation -> instruction.operation = Jump(operation.offset)
+            is Jump -> instruction.operation = NoOperation(operation.offset)
+        }
+
+    }
+
+    private fun runInstruction(instructionPointer: Int,
+                               accumulatorValue: Int,
+                               instruction: Instruction,
+                               stack: Stack<ProgramState>?,
+                               callback: (accumulatorValue: Int, instructionPointer: Int) -> Unit) {
+
+        when (val operation = instruction.operation) {
+
+            is NoOperation -> {
+
+                stack?.push(ProgramState(accumulatorValue, instruction))
+                callback(accumulatorValue, instructionPointer + 1)
+            }
+            is Accumulator -> {
+
+                stack?.push(ProgramState(accumulatorValue + operation.argument, instruction))
+                callback(accumulatorValue + operation.argument, instructionPointer + 1)
+            }
+            is Jump -> {
+
+                stack?.push(ProgramState(accumulatorValue, instruction))
+                callback(accumulatorValue, instructionPointer + operation.offset)
+            }
+        }
+
+        instruction.executionCount ++
     }
 }
 
@@ -48,18 +150,16 @@ object DayEight : Day<Int, Int> {
     override val filename = "/day-eight.txt"
 
     override val partOneResult: Int
-        get() {
+    get() = load().runUntilLoopOrEnd().accumulator
 
-            return load().run()
-        }
     override val partTwoResult: Int
-        get() = TODO("Not yet implemented")
+    get() = load().runWithCorrection().accumulator
 
-    private fun load() = Program(filename.readFile().map { instruction ->
+    private fun load() = Program(filename.readFile().mapIndexed { index, instruction ->
 
-        Instruction(when {
+        Instruction(index, when {
 
-            instruction.contains("nop") -> NoOperation
+            instruction.contains("nop") -> NoOperation(instruction.substring(4).trim().toInt())
             instruction.contains("acc") -> Accumulator(instruction.substring(4).trim().toInt())
             instruction.contains("jmp") -> Jump(instruction.substring(4).trim().toInt())
             else -> throw RuntimeException("Unexpected instruction: $instruction")
