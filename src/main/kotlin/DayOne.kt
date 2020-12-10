@@ -5,21 +5,25 @@ object DayOne : Day<Int, Int> {
     override val filename = "/day-one.txt"
 
     override val partOneResult: Int
-    get() {
+    get() = pairWhichSumTo(filename.readFile().map { it.toLong() }, 2020)?.run { first * second }?.toInt() ?: 0
 
-        val numbers = filename.readFile().map { it.toInt() }
+    fun pairWhichSumTo(numbers: List<Long>, sum: Long): Pair<Long, Long>? {
+
+        print("numbers = $numbers, sum = $sum: ")
         numbers.indices.forEach { start ->
 
             (start + 1 until numbers.size).forEach { index ->
 
-                if (numbers[start] + numbers[index] == 2020) {
+                if (numbers[start] + numbers[index] == sum) {
 
-                    return numbers[start] * numbers[index]
+                    println("output = ${numbers[start]}, ${numbers[index]}")
+                    return Pair(numbers[start], numbers[index])
                 }
             }
         }
 
-        return 0
+        println("no pair found.")
+        return null
     }
 
     override val partTwoResult: Int
