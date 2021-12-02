@@ -31,6 +31,170 @@ val partOneRule: (Int, Int, List<String>) -> Int = { x, y, data ->
     count
 }
 
+val partTwoRule: (Int, Int, List<String>) -> Int = { x, y, data ->
+
+    var count = 0
+
+    // west
+    for (tempX in max(0,x - 1) until 0) {
+
+        when (data[y][tempX]) {
+
+            OCCUPIED_SEAT -> {
+
+                count ++
+                break
+            }
+            EMPTY_SEAT -> {
+
+                break
+            }
+        }
+    }
+    // east
+    for (tempX in min(data[0].length, (x + 1)) until data[0].length) {
+
+        when (data[y][tempX]) {
+
+            OCCUPIED_SEAT -> {
+
+                count ++
+                break
+            }
+            EMPTY_SEAT -> {
+
+                break
+            }
+        }
+    }
+    // north
+    for (tempY in max(0, y - 1) until 0) {
+
+        when (data[tempY][x]) {
+
+            OCCUPIED_SEAT -> {
+
+                count ++
+                break
+            }
+            EMPTY_SEAT -> {
+
+                break
+            }
+        }
+    }
+    // south
+    for (tempY in min(data.size, (y + 1)) until data.size) {
+
+        when (data[tempY][x]) {
+
+            OCCUPIED_SEAT -> {
+
+                count ++
+                break
+            }
+            EMPTY_SEAT -> {
+
+                break
+            }
+        }
+    }
+    // north-west
+    var tempX = x - 1
+    var tempY = y - 1
+    while (tempX >= 0 && tempY >= 0) {
+
+        when (data[y][tempX]) {
+
+            OCCUPIED_SEAT -> {
+
+                count ++
+                break
+            }
+            EMPTY_SEAT -> {
+
+                break
+            }
+            else -> {
+
+                tempX --
+                tempY --
+            }
+        }
+    }
+    // south-east
+    tempX = x + 1
+    tempY = y + 1
+    while (tempX < data[0].length && tempY < data.size) {
+
+        when (data[y][tempX]) {
+
+            OCCUPIED_SEAT -> {
+
+                count ++
+                break
+            }
+            EMPTY_SEAT -> {
+
+                break
+            }
+            else -> {
+
+                tempX ++
+                tempY ++
+            }
+        }
+    }
+    // north-east
+    tempX = x + 1
+    tempY = y - 1
+    while (tempX < data[0].length && tempY >= 0) {
+
+        when (data[y][tempX]) {
+
+            OCCUPIED_SEAT -> {
+
+                count ++
+                break
+            }
+            EMPTY_SEAT -> {
+
+                break
+            }
+            else -> {
+
+                tempX ++
+                tempY --
+            }
+        }
+    }
+    // south-west
+    tempX = x - 1
+    tempY = y + 1
+    while (tempX >= 0 && tempY < data.size) {
+
+        when (data[y][tempX]) {
+
+            OCCUPIED_SEAT -> {
+
+                count ++
+                break
+            }
+            EMPTY_SEAT -> {
+
+                break
+            }
+            else -> {
+
+                tempX --
+                tempY ++
+            }
+        }
+    }
+
+    count
+}
+
 data class WaitingArea(private var seats: List<String>) {
 
     val numberOfOccupiedSeats: Long
@@ -73,6 +237,18 @@ data class WaitingArea(private var seats: List<String>) {
 
         else -> FLOOR
     }
+
+    override fun toString(): String {
+
+        return StringBuilder().apply {
+
+            seats.forEach {
+
+                append(it)
+                append("\n")
+            }
+        }.toString()
+    }
 }
 
 object DayEleven : Day<Long, Long> {
@@ -83,7 +259,7 @@ object DayEleven : Day<Long, Long> {
         get() = settledWaitingArea(waitingArea(), partOneRule, 4).numberOfOccupiedSeats
 
     override val partTwoResult: Long
-        get() = TODO("Not yet implemented")
+        get() = settledWaitingArea(waitingArea(), partTwoRule, 5).numberOfOccupiedSeats
 
     private fun waitingArea() = WaitingArea(filename.readFile())
 
@@ -91,10 +267,12 @@ object DayEleven : Day<Long, Long> {
 
         lateinit var waitingArea: WaitingArea
         var newWaitingArea = start
+        println(newWaitingArea)
         do {
 
             waitingArea = newWaitingArea
             newWaitingArea = waitingArea.tick(count, rule)
+            println(newWaitingArea)
         } while (waitingArea != newWaitingArea)
 
         return newWaitingArea
