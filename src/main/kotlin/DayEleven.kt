@@ -1,280 +1,234 @@
 import IO.readFile
-import kotlin.math.*
-import kotlin.text.StringBuilder
+import kotlin.math.max
+import kotlin.math.min
 
-const val FLOOR = '.'
-const val EMPTY_SEAT = 'L'
-const val OCCUPIED_SEAT = '#'
+object DayEleven : Day<Int, Int> {
 
-val partOneRule: (Int, Int, List<String>) -> Int = { x, y, data ->
+    private const val FLOOR = '.'
+    private const val EMPTY_CHAIR = 'L'
+    private const val OCCUPIED_CHAIR = '#'
 
-    var count = 0
-    val startX = max(0, x - 1)
-    val endX = min(x + 1, data[0].length - 1)
-    val startY = max(0, y - 1)
-    val endY = min(y + 1, data.size - 1)
+    override val filename = "/day-eleven.txt"
 
-    (startY .. endY).forEach { adjacentY ->
+    override val partOneResult: Int
+        get() {
 
-        (startX .. endX).forEach { adjacentX ->
+            var waitingArea = filename.readFile().map { it.toCharArray().toList() }
+            var newWaitingArea = tick(waitingArea, ::adjacentOccupiedSeats, 4)
+            while(newWaitingArea != waitingArea) {
 
-            if (adjacentX != x || adjacentY != y) {
+                waitingArea = newWaitingArea
+                newWaitingArea = tick(waitingArea, ::adjacentOccupiedSeats, 4)
+            }
 
-                if (data[adjacentY][adjacentX] == OCCUPIED_SEAT) {
+            return waitingArea.flatten().count { it == OCCUPIED_CHAIR }
+        }
 
-                    count++
+    override val partTwoResult: Int
+        get() {
+
+            var waitingArea = filename.readFile().map { it.toCharArray().toList() }
+            var newWaitingArea = tick(waitingArea, ::adjacentOccupiedSeatsForPartTwo, 5)
+            while(newWaitingArea != waitingArea) {
+
+                waitingArea = newWaitingArea
+                newWaitingArea = tick(waitingArea, ::adjacentOccupiedSeatsForPartTwo, 5)
+            }
+
+            return waitingArea.flatten().count { it == OCCUPIED_CHAIR }
+        }
+
+    private fun tick(
+        waitingArea: List<List<Char>>,
+        adjacentOccupiedSeats: (List<List<Char>>, Int, Int) -> Int,
+        maxNumberOfOccupiedSeats: Int,
+    ) = MutableList(waitingArea.size) {
+
+        MutableList(waitingArea[0].size) { FLOOR }
+    }.also { newWaitingArea ->
+
+        waitingArea.indices.forEach { y ->
+
+            waitingArea[0].indices.forEach { x->
+
+                if (waitingArea[y][x] == EMPTY_CHAIR && adjacentOccupiedSeats(waitingArea, x, y) == 0) {
+
+                    newWaitingArea[y][x] = OCCUPIED_CHAIR
+                } else if (waitingArea[y][x] == OCCUPIED_CHAIR && adjacentOccupiedSeats(waitingArea, x, y) >= maxNumberOfOccupiedSeats) {
+
+                    newWaitingArea[y][x] = EMPTY_CHAIR
+                } else {
+
+                    newWaitingArea[y][x] = waitingArea[y][x]
                 }
             }
         }
     }
 
-    count
-}
+    private fun adjacentOccupiedSeats(waitingArea: List<List<Char>>, x: Int, y: Int): Int {
 
-val partTwoRule: (Int, Int, List<String>) -> Int = { x, y, data ->
+        val startX = max(0, x - 1)
+        val startY = max(0, y - 1)
+        val endX = min(waitingArea[0].size - 1, x + 1)
+        val endY = min(waitingArea.size - 1, y + 1)
 
-    var count = 0
+        var count = 0
 
-    // west
-    for (tempX in max(0,x - 1) until 0) {
+        (startY .. endY).forEach { tempY ->
 
-        when (data[y][tempX]) {
+            (startX .. endX).forEach { tempX ->
 
-            OCCUPIED_SEAT -> {
+                if (!(tempX == x && tempY == y)) {
 
-                count ++
-                break
-            }
-            EMPTY_SEAT -> {
+                    if (waitingArea[tempY][tempX] == OCCUPIED_CHAIR) {
 
-                break
-            }
-        }
-    }
-    // east
-    for (tempX in min(data[0].length, (x + 1)) until data[0].length) {
-
-        when (data[y][tempX]) {
-
-            OCCUPIED_SEAT -> {
-
-                count ++
-                break
-            }
-            EMPTY_SEAT -> {
-
-                break
+                        count ++
+                    }
+                }
             }
         }
-    }
-    // north
-    for (tempY in max(0, y - 1) until 0) {
-
-        when (data[tempY][x]) {
-
-            OCCUPIED_SEAT -> {
-
-                count ++
-                break
-            }
-            EMPTY_SEAT -> {
-
-                break
-            }
-        }
-    }
-    // south
-    for (tempY in min(data.size, (y + 1)) until data.size) {
-
-        when (data[tempY][x]) {
-
-            OCCUPIED_SEAT -> {
-
-                count ++
-                break
-            }
-            EMPTY_SEAT -> {
-
-                break
-            }
-        }
-    }
-    // north-west
-    var tempX = x - 1
-    var tempY = y - 1
-    while (tempX >= 0 && tempY >= 0) {
-
-        when (data[y][tempX]) {
-
-            OCCUPIED_SEAT -> {
-
-                count ++
-                break
-            }
-            EMPTY_SEAT -> {
-
-                break
-            }
-            else -> {
-
-                tempX --
-                tempY --
-            }
-        }
-    }
-    // south-east
-    tempX = x + 1
-    tempY = y + 1
-    while (tempX < data[0].length && tempY < data.size) {
-
-        when (data[y][tempX]) {
-
-            OCCUPIED_SEAT -> {
-
-                count ++
-                break
-            }
-            EMPTY_SEAT -> {
-
-                break
-            }
-            else -> {
-
-                tempX ++
-                tempY ++
-            }
-        }
-    }
-    // north-east
-    tempX = x + 1
-    tempY = y - 1
-    while (tempX < data[0].length && tempY >= 0) {
-
-        when (data[y][tempX]) {
-
-            OCCUPIED_SEAT -> {
-
-                count ++
-                break
-            }
-            EMPTY_SEAT -> {
-
-                break
-            }
-            else -> {
-
-                tempX ++
-                tempY --
-            }
-        }
-    }
-    // south-west
-    tempX = x - 1
-    tempY = y + 1
-    while (tempX >= 0 && tempY < data.size) {
-
-        when (data[y][tempX]) {
-
-            OCCUPIED_SEAT -> {
-
-                count ++
-                break
-            }
-            EMPTY_SEAT -> {
-
-                break
-            }
-            else -> {
-
-                tempX --
-                tempY ++
-            }
-        }
+        return count
     }
 
-    count
-}
+    private fun seatFoundForHorizontalAndVertical(
+        waitingArea: List<List<Char>>,
+        xRange: IntProgression,
+        yRange: IntProgression,
+    ): Boolean {
 
-data class WaitingArea(private var seats: List<String>) {
+        var done = false
+        yRange.forEach { y ->
 
-    val numberOfOccupiedSeats: Long
-    get() = seats.sumBy { it.count { seat -> seat == '#' } }.toLong()
+            xRange.forEach { x ->
 
-    fun tick(count: Int, rule: (Int, Int, List<String>) -> Int) = WaitingArea(mutableListOf<String>().apply {
+                if (!done) {
 
-        seats.indices.forEach { y ->
+                    if (waitingArea[y][x] != FLOOR) {
 
-            val row = StringBuilder()
-            seats[y].indices.forEach { x ->
+                        if (waitingArea[y][x] == OCCUPIED_CHAIR) {
 
-                row.append(applyRule(x, y, seats, rule, count))
+                            return true
+                        }
+                        done = true
+                    }
+                }
             }
-            add(row.toString())
-        }
-    })
-
-    private fun applyRule(x: Int,
-                          y: Int,
-                          data: List<String>,
-                          occupiedSeats: (Int, Int, List<String>) -> Int,
-                          count: Int) = when (data[y][x]) {
-
-        EMPTY_SEAT -> if (occupiedSeats(x, y, data) == 0) {
-
-            OCCUPIED_SEAT
-        } else {
-
-            EMPTY_SEAT
         }
 
-        OCCUPIED_SEAT -> if (occupiedSeats(x, y, data) >= count) {
-
-            EMPTY_SEAT
-        } else {
-
-            OCCUPIED_SEAT
-        }
-
-        else -> FLOOR
+        return false
     }
 
-    override fun toString(): String {
+    private fun seatFoundForHorizontalAndVertical(waitingArea: List<List<Char>>, x: Int, yRange: IntProgression) =
+        seatFoundForHorizontalAndVertical(waitingArea, x .. x, yRange)
 
-        return StringBuilder().apply {
+    private fun seatFoundForHorizontalAndVertical(waitingArea: List<List<Char>>, xRange: IntProgression, y: Int) =
+        seatFoundForHorizontalAndVertical(waitingArea, xRange, y .. y)
 
-            seats.forEach {
+    private fun seatFoundForDiagonal(waitingArea: List<List<Char>>, xRange: IntProgression, yRange: IntProgression): Boolean {
 
-                append(it)
-                append("\n")
+        val x = xRange.map { it }
+        val y = yRange.map { it }
+        var done = false
+
+        x.indices.forEach { index ->
+
+            if (!done) {
+
+                if (waitingArea[y[index]][x[index]] != FLOOR) {
+
+                    if (waitingArea[y[index]][x[index]] == OCCUPIED_CHAIR) {
+
+                        return true
+                    }
+                    done = true
+                }
             }
-        }.toString()
+        }
+
+        return false
     }
-}
 
-object DayEleven : Day<Long, Long> {
+    private fun adjacentOccupiedSeatsForPartTwo(waitingArea: List<List<Char>>, x: Int, y: Int): Int {
 
-    override val filename = "/day-eleven.txt"
+        var count = 0
 
-    override val partOneResult: Long
-        get() = settledWaitingArea(waitingArea(), partOneRule, 4).numberOfOccupiedSeats
+        if (seatFoundForHorizontalAndVertical(waitingArea, x, y + 1 until waitingArea.size)) { count ++ }
+        if (seatFoundForHorizontalAndVertical(waitingArea, x, (0 until y).reversed())) { count ++ }
+        if (seatFoundForHorizontalAndVertical(waitingArea, x + 1 until waitingArea[0].size, y)) { count ++ }
+        if (seatFoundForHorizontalAndVertical(waitingArea, (0 until x).reversed(), y)) { count ++ }
 
-    override val partTwoResult: Long
-        get() = settledWaitingArea(waitingArea(), partTwoRule, 5).numberOfOccupiedSeats
+        var tempX = x - 1
+        var tempY = y - 1
+        while (tempX >= 0 && tempY >= 0) {
 
-    private fun waitingArea() = WaitingArea(filename.readFile())
+            if (waitingArea[tempY][tempX] != FLOOR) {
 
-    private fun settledWaitingArea(start: WaitingArea, rule: (Int, Int, List<String>) -> Int, count: Int): WaitingArea {
+                if (waitingArea[tempY][tempX] == OCCUPIED_CHAIR) {
 
-        lateinit var waitingArea: WaitingArea
-        var newWaitingArea = start
-        println(newWaitingArea)
-        do {
+                    count ++
+                }
+                tempX = -1
+                tempY = -1
+            }
 
-            waitingArea = newWaitingArea
-            newWaitingArea = waitingArea.tick(count, rule)
-            println(newWaitingArea)
-        } while (waitingArea != newWaitingArea)
+            tempX --
+            tempY --
+        }
 
-        return newWaitingArea
+        tempX = x + 1
+        tempY = y + 1
+        while (tempX < waitingArea[0].size && tempY < waitingArea.size) {
+
+            if (waitingArea[tempY][tempX] != FLOOR) {
+
+                if (waitingArea[tempY][tempX] == OCCUPIED_CHAIR) {
+
+                    count ++
+                }
+                tempX = waitingArea[0].size + 1
+                tempY = waitingArea.size + 1
+            }
+
+            tempX ++
+            tempY ++
+        }
+
+        tempX = x + 1
+        tempY = y - 1
+        while (tempX < waitingArea[0].size && tempY >= 0) {
+
+            if (waitingArea[tempY][tempX] != FLOOR) {
+
+                if (waitingArea[tempY][tempX] == OCCUPIED_CHAIR) {
+
+                    count ++
+                }
+                tempX = waitingArea[0].size + 1
+                tempY = -1
+            }
+
+            tempX ++
+            tempY --
+        }
+
+        tempX = x - 1
+        tempY = y + 1
+        while (tempX >= 0 && tempY < waitingArea.size) {
+
+            if (waitingArea[tempY][tempX] != FLOOR) {
+
+                if (waitingArea[tempY][tempX] == OCCUPIED_CHAIR) {
+
+                    count ++
+                }
+                tempX = -1
+                tempY = waitingArea.size + 1
+            }
+
+            tempX --
+            tempY ++
+        }
+
+        return count
     }
 }
