@@ -1,8 +1,4 @@
-import IO.readFile
-
-class DayNine(private val preambleSize: Int = 0, private val result: Long = 0) : Day<Long, Long> {
-
-    override val filename = "/day-nine.txt"
+class DayNine(private val preambleSize: Int = 0, private val result: Long = 0) : Day<Long, Long>("/day-nine.txt") {
 
     override val partOneResult: Long
         get() = load().run {
@@ -51,7 +47,7 @@ class DayNine(private val preambleSize: Int = 0, private val result: Long = 0) :
             -1
         }
 
-    private fun load() = filename.readFile().map { it.trim().toLong() }
+    private fun load() = data.map { it.trim().toLong() }
 
     private fun <T> List<T>.preamble(index: Int, count: Int): List<T> = this.subList(index - count, index)
 }

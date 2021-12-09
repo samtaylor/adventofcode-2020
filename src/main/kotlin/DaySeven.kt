@@ -1,43 +1,4 @@
-import IO.readFile
-
-data class Bag(val colour: String, val contents: List<Item> = emptyList()) {
-
-    fun canHold(bags: List<Bag>, colour: String): Boolean {
-
-        if (contents.any { it.colour == colour }) {
-
-            return true
-        } else {
-
-            contents.forEach { item ->
-
-                if (bags.find { it.colour == item.colour }?.canHold(bags, colour) == true) {
-
-                    return true
-                }
-            }
-        }
-
-        return false
-    }
-
-    fun countBagsWithin(bags: List<Bag>): Int {
-
-        var sum = contents.sumBy { it.count }
-
-        contents.forEach { item ->
-
-            sum += item.count * (bags.find { it.colour == item.colour }?.countBagsWithin(bags) ?: 0)
-        }
-
-        return sum
-    }
-}
-data class Item(val count: Int, val colour: String)
-
-object DaySeven : Day<Int, Int> {
-
-    override val filename = "/day-seven.txt"
+object DaySeven : Day<Int, Int>("/day-seven.txt") {
 
     override val partOneResult: Int
         get() {
@@ -63,7 +24,7 @@ object DaySeven : Day<Int, Int> {
             return bags.find { it.colour == "shiny gold" }?.countBagsWithin(bags) ?: 0
         }
 
-    private fun bags(): List<Bag> = filename.readFile().map { line ->
+    private fun bags(): List<Bag> = data.map { line ->
 
         val colourContents = line.replace("bag.", "")
             .replace("bags.", "")
@@ -84,4 +45,39 @@ object DaySeven : Day<Int, Int> {
             }
         Bag(colour, contents)
     }
+
+    data class Bag(val colour: String, val contents: List<Item> = emptyList()) {
+
+        fun canHold(bags: List<Bag>, colour: String): Boolean {
+
+            if (contents.any { it.colour == colour }) {
+
+                return true
+            } else {
+
+                contents.forEach { item ->
+
+                    if (bags.find { it.colour == item.colour }?.canHold(bags, colour) == true) {
+
+                        return true
+                    }
+                }
+            }
+
+            return false
+        }
+
+        fun countBagsWithin(bags: List<Bag>): Int {
+
+            var sum = contents.sumBy { it.count }
+
+            contents.forEach { item ->
+
+                sum += item.count * (bags.find { it.colour == item.colour }?.countBagsWithin(bags) ?: 0)
+            }
+
+            return sum
+        }
+    }
+    data class Item(val count: Int, val colour: String)
 }

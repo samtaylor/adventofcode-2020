@@ -2,18 +2,16 @@ import IO.readFile
 import kotlin.math.max
 import kotlin.math.min
 
-object DayEleven : Day<Int, Int> {
+object DayEleven : Day<Int, Int>("/day-eleven.txt") {
 
     private const val FLOOR = '.'
     private const val EMPTY_CHAIR = 'L'
     private const val OCCUPIED_CHAIR = '#'
 
-    override val filename = "/day-eleven.txt"
-
     override val partOneResult: Int
         get() {
 
-            var waitingArea = filename.readFile().map { it.toCharArray().toList() }
+            var waitingArea = data.map { it.toCharArray().toList() }
             var newWaitingArea = tick(waitingArea, ::adjacentOccupiedSeats, 4)
             while(newWaitingArea != waitingArea) {
 
@@ -27,7 +25,7 @@ object DayEleven : Day<Int, Int> {
     override val partTwoResult: Int
         get() {
 
-            var waitingArea = filename.readFile().map { it.toCharArray().toList() }
+            var waitingArea = data.map { it.toCharArray().toList() }
             var newWaitingArea = tick(waitingArea, ::adjacentOccupiedSeatsForPartTwo, 5)
             while(newWaitingArea != waitingArea) {
 

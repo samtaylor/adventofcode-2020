@@ -1,7 +1,10 @@
-interface Day<T, U> {
+import IO.readFile
 
-    val filename: String
+abstract class Day<T, U>(private val filename: String) {
 
-    val partOneResult: T
-    val partTwoResult: U
+    val data: List<String>
+    get() = filename.readFile()
+
+    abstract val partOneResult: T
+    abstract val partTwoResult: U
 }

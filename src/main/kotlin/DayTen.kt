@@ -1,8 +1,4 @@
-import IO.readFile
-
-data class Node(val value: Long, var connections: List<Node> = emptyList())
-
-class DayTen(override val filename: String = "/day-ten.txt") : Day<Long, Long> {
+class DayTen(filename: String = "/day-ten.txt") : Day<Long, Long>(filename) {
 
     override val partOneResult: Long
         get() = load().run {
@@ -74,9 +70,11 @@ class DayTen(override val filename: String = "/day-ten.txt") : Day<Long, Long> {
         return counter
     }
 
-    private fun load() = filename.readFile().map { it.toLong() }.toMutableList().apply {
+    private fun load() = data.map { it.toLong() }.toMutableList().apply {
 
         add(0, 0)
         add(this.maxOf { it } + 3)
     }.sorted()
+
+    data class Node(val value: Long, var connections: List<Node> = emptyList())
 }

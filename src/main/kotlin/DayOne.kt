@@ -1,11 +1,7 @@
-import IO.readFile
-
-object DayOne : Day<Int, Int> {
-
-    override val filename = "/day-one.txt"
+object DayOne : Day<Int, Int>("/day-one.txt") {
 
     override val partOneResult: Int
-    get() = pairWhichSumTo(filename.readFile().map { it.toLong() }, 2020)?.run { first * second }?.toInt() ?: 0
+    get() = pairWhichSumTo(data.map { it.toLong() }, 2020)?.run { first * second }?.toInt() ?: 0
 
     fun pairWhichSumTo(numbers: List<Long>, sum: Long): Pair<Long, Long>? {
 
@@ -29,7 +25,7 @@ object DayOne : Day<Int, Int> {
     override val partTwoResult: Int
     get() {
 
-        val numbers = filename.readFile().map { it.toInt() }
+        val numbers = data.map { it.toInt() }
         numbers.indices.forEach { start ->
 
             (start + 1 until numbers.size).forEach { index1 ->

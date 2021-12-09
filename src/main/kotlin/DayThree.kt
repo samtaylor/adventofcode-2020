@@ -1,39 +1,4 @@
-import IO.readFile
-
-
-class Forest(private val terrain: List<List<Char>>) {
-
-    fun numberOfTreesHit(right: Int, down: Int): Long {
-
-        val maxColumn = terrain[0].size
-        val maxRow = terrain.size
-
-        var treeCount = 0
-        var column = 0
-        var row = 0
-
-        while (row < maxRow) {
-
-            if (terrain[row][column] == '#') {
-
-                treeCount ++
-            }
-
-            row += down
-            column += right
-            if (column >= maxColumn) {
-
-                column -= maxColumn
-            }
-        }
-
-        return treeCount.toLong()
-    }
-}
-
-object DayThree : Day<Long, Long> {
-
-    override val filename = "/day-three.txt"
+object DayThree : Day<Long, Long>("/day-three.txt") {
 
     override val partOneResult = forest().numberOfTreesHit(3, 1)
 
@@ -52,8 +17,38 @@ object DayThree : Day<Long, Long> {
         result
     }
 
-    private fun forest() = Forest(filename.readFile().map { row ->
+    private fun forest() = Forest(data.map { row ->
 
         row.indices.map { column -> row[column] }
     })
+
+    class Forest(private val terrain: List<List<Char>>) {
+
+        fun numberOfTreesHit(right: Int, down: Int): Long {
+
+            val maxColumn = terrain[0].size
+            val maxRow = terrain.size
+
+            var treeCount = 0
+            var column = 0
+            var row = 0
+
+            while (row < maxRow) {
+
+                if (terrain[row][column] == '#') {
+
+                    treeCount ++
+                }
+
+                row += down
+                column += right
+                if (column >= maxColumn) {
+
+                    column -= maxColumn
+                }
+            }
+
+            return treeCount.toLong()
+        }
+    }
 }
